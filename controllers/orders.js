@@ -101,7 +101,7 @@ module.exports = {
         try {
             let userId = req.decoded._id;
             
-            let orders = await orderSchema.find(userId)
+            let orders = await orderSchema.findById(userId)
             
             return res.json({
                 code: 200,

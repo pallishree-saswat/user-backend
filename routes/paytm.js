@@ -76,7 +76,7 @@ if (isVerifySignature) {
                     {
 
                         let userId = req.decoded._id;
-                        let orders = await orderSchema.find(userId, {orderStatus : result})
+                        let orders = await orderSchema.findByIdAndUpdate(userId, {orderStatus : result}, {new: true})
                         orders.save()
 
                         res.json({
@@ -88,13 +88,13 @@ if (isVerifySignature) {
 
 
 
+                        res.redirect(`http://localhost:3000/status/${result.ORDERID}`)
                        
                        
                          console.log(result)
                        
                     }
 
-                    res.redirect(`http://localhost:3000/status/${result.ORDERID}`)
 
                 }catch (err) {
                     console.log(err);
