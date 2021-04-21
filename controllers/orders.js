@@ -92,5 +92,25 @@ module.exports = {
         } catch (err) {
             next(err);
         }
+    },
+
+
+
+
+    orderStatus: async (req, res, next) => {
+        try {
+            let userId = req.decoded._id;
+            
+            let orders = await orderSchema.find(userId)
+            
+            return res.json({
+                code: 200,
+                data: orders,
+                message: "Orders list fetched",
+                error: null
+            });
+        } catch (err) {
+            next(err);
+        }
     }
 }

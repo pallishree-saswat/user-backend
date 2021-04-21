@@ -1,4 +1,5 @@
-
+const orderSchema = require('../models/orders/orders');
+const userSchema = require('../models/customers/users');
 require('dotenv').config()
 
 const formidable=require('formidable')
@@ -67,16 +68,38 @@ if (isVerifySignature) {
                 response += chunk;
             });
     
-            post_res.on('end', function(){
-                         let result=JSON.parse(response)
-                        if(result.STATUS==='TXN_SUCCESS')
-                        {
-                            console.log(result)
-                           
-                        }
+            post_res.on('end',  async function(){
+                  //store in db
+                try{
+                    let result=JSON.parse(response)
+                    if(result.STATUS==='TXN_SUCCESS')
+                    {
 
-                        res.redirect(`http://localhost:3000/status/${result.ORDERID}`)
+                        let userId = req.decoded._id;
+                        let orders = await orderSchema.find(userId, {orderStatus : result})
+                        orders.save()
 
+                        res.json({
+                            code: 200,
+                            data: orders,
+                            message: "Orders status",
+                            error: null
+                        })
+
+
+
+                       
+                       
+                         console.log(result)
+                       
+                    }
+
+                    res.redirect(`http://localhost:3000/status/${result.ORDERID}`)
+
+                }catch (err) {
+                    console.log(err);
+                }
+                       
 
             });
         });
