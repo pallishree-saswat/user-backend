@@ -1,6 +1,7 @@
 const orderSchema = require("../models/orders/orders");
 const userSchema = require("../models/customers/users");
 const paymentSchema = require("../models/payment/payment");
+
 require("dotenv").config();
 
 const formidable = require("formidable");
@@ -11,6 +12,25 @@ const https = require("https");
 
 const PaytmChecksum = require("../paytm/checksum");
 const { authorize } = require("../middleware/auth");
+
+
+//post request
+//-------paytm/getOrderById--------------
+router.post("getOrderById", async (req, res) => {
+
+  let orderId = req.body;
+
+  const orders = await orderSchema.findById(orderId);
+
+  if (orders) {
+    res.json(orders);
+    console.log(result)
+  } else {
+    res.status(404);
+    console.log("Order not found");
+  }
+});
+
 
 router.get("/payment-details/:id", async (req, res) => {
   const paymentDetails = await paymentSchema.findById(req.params.id);
@@ -30,7 +50,7 @@ router.post("/callback", async (req, res) => {
     let result = req.body;
 
     console.log(result);
-    let userId = result.ORDERID.substr(0, result.ORDERID.indexOf("_"));
+    let userId = req.query.userId;
 
     const payment = new paymentSchema({
       paymentResult: result,
@@ -53,21 +73,21 @@ router.post("/callback", async (req, res) => {
 
 router.post("/payment", (req, res) => {
   /* const costuomerId = req.decoded._id.toString(); */
-  const { amount, email, phone, userId } = req.body;
+  const { amount, email, phone, userId , orderId} = req.body;
 
   /* import checksum generation utility */
   const totalAmount = JSON.stringify(amount);
   var params = {};
 
   /* initialize an array */
-  (params["MID"] = "SMnxGN10988548912165"),
+    (params["MID"] = "SMnxGN10988548912165"),
     (params["WEBSITE"] = "WEBSTAGING"),
     (params["CHANNEL_ID"] = "WEB"),
     (params["INDUSTRY_TYPE_ID"] = "Retail"),
-    (params["ORDER_ID"] = userId + "_" + uuidv4()),
+    (params["ORDER_ID"] =  orderId),
     (params["CUST_ID"] = "CUST_001"),
     (params["TXN_AMOUNT"] = amount),
-    (params["CALLBACK_URL"] = "http://localhost:3001/paytm/callback"),
+    (params["CALLBACK_URL"] = "http://localhost:3001/paytm/callback/" + userId),
     (params["EMAIL"] = email),
     (params["MOBILE_NO"] = phone);
 

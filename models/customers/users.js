@@ -26,7 +26,11 @@ const UserSchema = new Schema({
         type: String,
         default: ""
     },
-    isDeleted: {
+    address:{
+       type: String
+       
+    },
+     isDeleted: {
         type: Boolean,
         default: false
     }
